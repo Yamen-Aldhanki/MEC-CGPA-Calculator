@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEC CGPA Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #05080f;
+      --navy:       #080e1a;
+      --surface:    #0c1525;
+      --card:       #0f1c2e;
+      --border:     #1c2e44;
+      --border2:    #243a54;
+      --gold:       #d4a843;
+      --gold2:      #f0c96a;
+      --gold-dim:   rgba(212,168,67,0.12);
+      --summer:     #f97316;
+      --summer-dim: rgba(249,115,22,0.1);
+      --teal:       #2dd4bf;
+      --text:       #dce8f5;
+      --muted:      #486278;
+      --soft:       #7ea3be;
+      --radius:     14px;
+    }
+
+    html.light {
+      --bg:         #f5f0e8;
+      --navy:       #ede7d9;
+      --surface:    #e8e1d0;
+      --card:       #fdfaf5;
+      --border:     #c8bda0;
+      --border2:    #b0a080;
+      --gold:       #1d4ed8;
+      --gold2:      #2563eb;
+      --gold-dim:   rgba(29,78,216,0.08);
+      --summer:     #b84a00;
+      --summer-dim: rgba(184,74,0,0.08);
+      --teal:       #0a6b60;
+      --text:       #1a1208;
+      --muted:      #5a4e38;
+      --soft:       #3a2e1a;
+      --radius:     14px;
+    }
+
+    /* ══ THEME TOGGLE ══ */
+    .theme-toggle {
+      position: fixed; top: 1rem; right: 1rem; z-index: 1000;
+      display: flex; align-items: center; gap: 0;
+      background: var(--card); border: 1.5px solid var(--border2);
+      border-radius: 999px; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .theme-btn {
+      padding: 0.45rem 0.85rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--muted); transition: all 0.2s; display:flex; align-items:center; gap:0.35rem;
+    }
+
+    .theme-btn.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    html.light .theme-btn.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ══ BACKGROUND ══ */
+    .bg-art { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-art::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(212,168,67,0.18) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+    html.light .bg-art::before {
+      background-image: radial-gradient(circle, rgba(160,120,32,0.2) 1px, transparent 1px);
+    }
+    .bg-arc-tr { position:absolute; top:-200px; right:-200px; width:700px; height:700px; border-radius:50%; border:1px solid rgba(212,168,67,0.08); background:radial-gradient(ellipse at center,rgba(212,168,67,0.04) 0%,transparent 65%); }
+    .bg-arc-tr::before { content:''; position:absolute; inset:50px; border-radius:50%; border:1px solid rgba(212,168,67,0.06); }
+    .bg-arc-tr::after  { content:''; position:absolute; inset:120px; border-radius:50%; border:1px solid rgba(212,168,67,0.04); }
+    .bg-glow-bl { position:absolute; bottom:-150px; left:-150px; width:600px; height:600px; border-radius:50%; background:radial-gradient(ellipse,rgba(45,212,191,0.05) 0%,transparent 65%); }
+    .bg-center  { position:absolute; top:30%; left:50%; transform:translateX(-50%); width:800px; height:400px; border-radius:50%; background:radial-gradient(ellipse,rgba(212,168,67,0.03) 0%,transparent 70%); }
+    .bg-lines   { position:absolute; inset:0; background-image:repeating-linear-gradient(-45deg,transparent,transparent 60px,rgba(212,168,67,0.015) 60px,rgba(212,168,67,0.015) 61px); }
+
+    .page { position: relative; z-index: 1; }
+
+    /* ══ HERO ══ */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 4rem 1.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .ornament { font-size:1.4rem; color:var(--gold); opacity:0.7; margin-bottom:1rem; letter-spacing:0.2em; animation:float 4s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,8vw,5.5rem); font-weight:700; line-height:0.95; letter-spacing:-0.02em; color:#fff; margin-bottom:0.3rem; }
+    h1 em { font-style:italic; background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 60%,var(--gold) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    html.light .btn-calc,
+    html.light .btn-quick-calc {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb, #3b82f6, #2563eb, #1d4ed8);
+      background-size: 300% 100%;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+    }
+    html.light .btn-calc:hover,
+    html.light .btn-quick-calc:hover {
+      box-shadow: 0 8px 30px rgba(37,99,235,0.45);
+    }
+    html.light .sem-card-header::before,
+    html.light .quick-card-header::before { background: linear-gradient(180deg, #1d4ed8, #3b82f6); }
+    html.light .college-badge { color: #1d4ed8; background: rgba(29,78,216,0.08); border-color: rgba(29,78,216,0.2); }
+    html.light .college-badge .dot { background: #1d4ed8; }
+    html.light .result-divider::before,
+    html.light .result-divider::after { background: linear-gradient(90deg,transparent,rgba(29,78,216,0.35),transparent); }
+    html.light .result-divider-icon { color: #1d4ed8; }
+    html.light .result-quote { background: rgba(29,78,216,0.06); }
+    html.light .result-quote p { color: #1d4ed8; }
+    html.light h1 em { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 60%, #1d4ed8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    html.light h1 { color: #1a1208; }
+    html.light .ornament { color: #1d4ed8; }
+    html.light .sem-title,
+    html.light .quick-card-title,
+    html.light .q-step-title,
+    html.light .result-cgpa,
+    html.light .breakdown-row-left,
+    html.light .sem-row-left { color: #1a1208; }
+
+    html.light .mod-credits,
+    html.light .sem-meta,
+    html.light .q-hint,
+    html.light .quick-card-sub,
+    html.light .save-notice,
+    html.light .result-pill,
+    html.light .breakdown-oam,
+    html.light .scale-chip { color: #5a4e38; }
+
+    html.light input[type=number] { color: #1a1208; background: #fff; border-color: var(--border2); }
+    html.light .quick-input      { color: #1a1208; background: #fff; }
+    html.light input[type=number].filled,
+    html.light .quick-input.filled { color: var(--gold); }
+
+    html.light .hero-quote { color: rgba(26,18,8,0.65); }
+    html.light .hero-sub   { color: #5a4e38; }
+    html.light .subtitle   { color: #5a4e38; }
+    html.light .section-eyebrow-text { color: var(--gold); }
+    html.light .q-step-num { background: var(--gold-dim); color: var(--gold); }
+    html.light .q-summer-item-label  { color: #1a1208; }
+    html.light .q-summer-item-label span { color: #5a4e38; }
+    html.light .q-mod-label,
+    html.light .mod-label  { color: #3a2e1a; }
+    html.light .mark-label { color: #5a4e38; }
+    html.light .result-grade-line,
+    html.light .result-metric-sub,
+    html.light .quick-result-sub { color: #5a4e38; }
+    html.light .result-quote p { color: rgba(138,101,16,0.9); }
+    html.light .footer-quote   { color: rgba(26,18,8,0.5); }
+    html.light .footer-meta    { color: #5a4e38; }
+    html.light .q-summer-opt   { color: #5a4e38; border-color: var(--border2); background: var(--surface); }
+    html.light .q-sem-btn      { color: #5a4e38; }
+    html.light .nav-btn, html.light .btn-reset { color: #5a4e38; }
+    html.light .hero-stat-label { color: #5a4e38; }
+    html.light .tab-row-label   { color: #5a4e38; }
+    html.light .sem-oam-live    { color: #5a4e38; }
+    html.light .quote-strip p   { color: rgba(26,18,8,0.6); }
+    html.light .scroll-cta      { color: #5a4e38; }
+    html.light .info-card       { color: #3a2e1a; }
+    html.light .bg-arc-tr, html.light .bg-lines { opacity: 0.4; }
+
+    .hero-sub { font-size:0.82rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:2.2rem; font-weight:500; }
+
+    .hero-quote { max-width:500px; font-family:'Cormorant Garamond',serif; font-size:clamp(1.1rem,3vw,1.45rem); font-style:italic; font-weight:400; color:rgba(220,232,245,0.65); line-height:1.6; margin-bottom:2rem; position:relative; padding:0 1.5rem; }
+    .hero-quote::before { content:'\201C'; font-family:'Cormorant Garamond',serif; font-size:4rem; line-height:0; color:var(--gold); opacity:0.3; position:absolute; top:0.6rem; left:0; }
+    .hero-quote::after  { content:'\201D'; font-family:'Cormorant Garamond',serif; font-size:4rem; line-height:0; color:var(--gold); opacity:0.3; position:absolute; right:0; bottom:-0.5rem; }
+    .hero-quote cite { display:block; font-style:normal; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-top:0.8rem; }
+
+    .hero-stats { display:flex; gap:0; margin-bottom:2.5rem; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface); }
+    .hero-stat { padding:0.8rem 1.4rem; text-align:center; border-right:1px solid var(--border); }
+    .hero-stat:last-child { border-right:none; }
+    .hero-stat-num { font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:600; color:var(--gold); display:block; line-height:1; }
+    .hero-stat-label { font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; display:block; }
+
+    .scroll-cta { display:flex; flex-direction:column; align-items:center; gap:0.5rem; color:var(--muted); font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; animation:bobDown 2s ease-in-out infinite; cursor:pointer; text-decoration:none; }
+    .scroll-cta svg { width:20px; height:20px; stroke:var(--gold); opacity:0.6; }
+    @keyframes bobDown { 0%,100%{transform:translateY(0);opacity:0.6} 50%{transform:translateY(6px);opacity:1} }
+
+    /* ══ QUOTE STRIP ══ */
+    .quote-strip { border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--navy); padding:1.8rem 1.5rem; text-align:center; position:relative; overflow:hidden; }
+    .quote-strip::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(212,168,67,0.03),transparent); }
+    .quote-strip p { font-family:'Cormorant Garamond',serif; font-size:clamp(0.95rem,2.5vw,1.2rem); font-style:italic; color:rgba(220,232,245,0.5); max-width:620px; margin:0 auto; line-height:1.7; }
+    .quote-strip cite { font-style:normal; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); display:block; margin-top:0.6rem; opacity:0.7; }
+
+    /* ══ MAIN CALC LAYOUT ══ */
+    .calc-section { max-width: 820px; margin: 0 auto; padding: 3.5rem 1.2rem 5rem; }
+
+    .section-eyebrow { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+    .section-eyebrow::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
+    .section-eyebrow-text { font-size:0.62rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); white-space:nowrap; font-weight:600; }
+
+    /* Auto-save notice */
+    .save-notice { display:flex; align-items:center; gap:0.6rem; background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.18); border-radius:10px; padding:0.65rem 1rem; margin-bottom:1.8rem; font-size:0.75rem; color:rgba(45,212,191,0.8); }
+    .save-dot { width:7px; height:7px; border-radius:50%; background:#2dd4bf; flex-shrink:0; animation:blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ══ GRID OF SEMESTERS ══ */
+    .semesters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Summer full-width toggle row */
+    .summer-row-wrap, .summer-card-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 0.2rem;
+    }
+
+    .summer-toggle-label {
+      font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--summer); font-weight: 600; white-space: nowrap;
+    }
+
+    .summer-toggle-line { flex:1; height:1px; background: rgba(249,115,22,0.2); }
+
+    .btn-summer-toggle {
+      font-size: 0.72rem; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 0.35rem 0.85rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
+      border: 1px solid rgba(249,115,22,0.3); background: var(--summer-dim); color: var(--summer);
+      white-space: nowrap;
+    }
+    .btn-summer-toggle:hover { background: rgba(249,115,22,0.18); }
+    .btn-summer-toggle.active { background: rgba(249,115,22,0.2); border-color: var(--summer); }
+
+    /* ══ SEMESTER CARD ══ */
+    .sem-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .sem-card:focus-within { border-color: rgba(212,168,67,0.3); }
+    .sem-card.summer-card  { border-color: rgba(249,115,22,0.2); }
+    .sem-card.summer-card:focus-within { border-color: rgba(249,115,22,0.4); }
+
+    .sem-card-header {
+      padding: 0.75rem 1rem;
+      display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(90deg, var(--gold-dim), transparent 60%);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .sem-card.summer-card .sem-card-header { background: linear-gradient(90deg, var(--summer-dim), transparent 60%); }
+
+    .sem-card-header::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: linear-gradient(180deg, var(--gold), var(--gold2));
+      border-radius: 0 3px 3px 0;
+    }
+    .sem-card.summer-card .sem-card-header::before { background: linear-gradient(180deg, var(--summer), #fb923c); }
+
+    .sem-title { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:700; color:var(--text); }
+    .sem-title-badge { font-size:0.55rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:999px; margin-left:0.4rem; vertical-align:middle; }
+    .badge-final  { background:var(--gold-dim); border:1px solid rgba(212,168,67,0.3); color:var(--gold); }
+    .badge-summer { background:var(--summer-dim); border:1px solid rgba(249,115,22,0.3); color:var(--summer); }
+
+    .sem-oam-live { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted); transition:color 0.2s; }
+
+    /* ══ MODULE INPUTS ══ */
+    .modules-grid {
+      padding: 0.75rem 0.9rem;
+      display: flex; flex-direction: column; gap: 0.45rem;
+    }
+
+    .mod-row {
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+
+    .mod-label {
+      font-size: 0.75rem; font-weight: 600; color: var(--soft);
+      min-width: 72px; flex-shrink: 0;
+    }
+
+    .mod-input {
+      flex: 1;
+      background: var(--navy);
+      border: 1.5px solid var(--border2);
+      border-radius: 9px;
+      padding: 0.45rem 0.75rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .mod-input::-webkit-outer-spin-button,
+    .mod-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .mod-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,67,0.1); }
+    .mod-input.filled { border-color: rgba(212,168,67,0.4); color: var(--gold2); }
+    .mod-input.summer-filled { border-color: rgba(249,115,22,0.4); color: #fb923c; }
+
+    .mod-grade-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600;
+      padding: 0.18rem 0.5rem; border-radius: 6px; border: 1px solid;
+      min-width: 52px; text-align: center; transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    /* ══ ACTION BUTTONS ══ */
+    .action-row { display:flex; gap:0.8rem; margin-bottom:2.5rem; }
+
+    .btn-calc {
+      flex:3; padding:1.1rem 1.5rem; border-radius:14px; border:none;
+      background:linear-gradient(135deg,#b8892a,#d4a843,#e8c060,#d4a843,#b8892a);
+      background-size:300% 100%; color:#0a0600;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:1rem; font-weight:700; letter-spacing:0.04em;
+      cursor:pointer; transition:all 0.3s;
+      box-shadow:0 4px 20px rgba(212,168,67,0.3), 0 1px 0 rgba(255,255,255,0.2) inset;
+      position:relative; overflow:hidden;
+    }
+    .btn-calc:hover { background-position:100% 0; transform:translateY(-2px); box-shadow:0 8px 30px rgba(212,168,67,0.45); }
+    .btn-calc:active { transform:translateY(0); }
+    .btn-calc:disabled { background:var(--surface); color:var(--muted); cursor:not-allowed; box-shadow:none; transform:none; }
+
+    .btn-reset { flex:1; padding:1.1rem; border-radius:14px; border:1px solid var(--border2); background:var(--surface); color:var(--muted); font-family:'Plus Jakarta Sans',sans-serif; font-size:0.85rem; font-weight:500; cursor:pointer; transition:all 0.18s; }
+    .btn-reset:hover { border-color:var(--soft); color:var(--soft); }
+
+    /* ══ RESULT ══ */
+    #result-section { display: none; }
+
+    .result-card {
+      border-radius:24px; border:1px solid var(--border2); overflow:hidden;
+      animation:resultReveal 0.5s cubic-bezier(0.16,1,0.3,1) both;
+      box-shadow:0 20px 80px rgba(0,0,0,0.5);
+    }
+    @keyframes resultReveal { from{opacity:0;transform:translateY(24px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    .result-hero {
+      padding:3rem 1.5rem 2.5rem; text-align:center; position:relative;
+      border-bottom:1px solid var(--border); overflow:hidden;
+    }
+    .result-hero::before {
+      content:''; position:absolute; inset:0;
+      background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(212,168,67,0.04) 30deg,transparent 60deg,rgba(212,168,67,0.03) 90deg,transparent 120deg,rgba(212,168,67,0.04) 150deg,transparent 180deg,rgba(212,168,67,0.03) 210deg,transparent 240deg,rgba(212,168,67,0.04) 270deg,transparent 300deg,rgba(212,168,67,0.03) 330deg,transparent 360deg);
+    }
+    .result-hero::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); width:300px; height:300px; border-radius:50%; background:radial-gradient(ellipse,rgba(212,168,67,0.08) 0%,transparent 65%); }
+
+    .result-decoration { position:relative; z-index:1; font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--gold); opacity:0.7; margin-bottom:1rem; }
+
+    .result-dual { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:2.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .result-metric { text-align:center; min-width:110px; }
+    .result-metric-label { font-size:0.58rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:0.4rem; font-weight:600; display:block; }
+    .result-cgpa { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,7vw,3.8rem); font-weight:700; line-height:1; margin-bottom:0.25rem; }
+    .result-oam  { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,7vw,3.8rem); font-weight:700; line-height:1; margin-bottom:0.25rem; }
+    .result-metric-sub { font-size:0.72rem; color:var(--muted); margin-top:0.3rem; }
+    .result-metric-sub strong { font-weight:700; }
+    .result-metric-divider { font-size:2rem; color:rgba(212,168,67,0.2); padding-top:0.5rem; }
+
+    .result-divider { position:relative; z-index:1; display:flex; align-items:center; gap:0.8rem; max-width:300px; margin:0 auto 1.5rem; }
+    .result-divider::before,.result-divider::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(212,168,67,0.35),transparent); }
+    .result-divider-icon { color:var(--gold); font-size:0.9rem; opacity:0.7; }
+
+    .result-pills { position:relative; z-index:1; display:inline-flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; }
+    .result-pill { background:rgba(255,255,255,0.04); border:1px solid var(--border2); border-radius:999px; padding:0.35rem 0.9rem; font-size:0.75rem; color:var(--soft); }
+    .result-pill strong { color:var(--text); font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+
+    .result-quote { padding:1.2rem 1.5rem; border-bottom:1px solid var(--border); background:var(--gold-dim); text-align:center; }
+    .result-quote p { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:rgba(212,168,67,0.85); line-height:1.5; }
+
+    .result-body { padding:1.5rem 1.4rem 0.8rem; }
+    .section-header { display:flex; align-items:center; gap:0.7rem; margin-bottom:0.9rem; }
+    .section-label { font-size:0.6rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); font-weight:600; white-space:nowrap; }
+    .section-line { flex:1; height:1px; background:var(--border); }
+
+    .sem-rows { display:flex; flex-direction:column; gap:0.4rem; }
+    .breakdown-row { display:flex; justify-content:space-between; align-items:center; background:var(--navy); border-radius:11px; padding:0.7rem 1rem; border:1px solid var(--border); }
+    .breakdown-row.is-summer { border-color:rgba(249,115,22,0.15); }
+    .breakdown-row-left { font-size:0.83rem; font-weight:600; color:#c8daea; }
+    .breakdown-row-right { display:flex; align-items:center; gap:0.6rem; }
+    .breakdown-oam { font-size:0.72rem; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+    .grade-pill { font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:7px; border:1px solid; white-space:nowrap; }
+
+    .scale-section { padding:0.4rem 1.4rem 1.5rem; }
+    .scale-grid { display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.3rem; }
+    .scale-chip { font-family:'JetBrains Mono',monospace; font-size:0.6rem; padding:0.22rem 0.55rem; border-radius:6px; border:1px solid var(--border); color:var(--muted); background:var(--navy); transition:all 0.2s; }
+
+    /* ══ QUICK PREDICT ══ */
+    .quick-section { max-width:820px; margin:0 auto; padding:3.5rem 1.2rem 1rem; border-bottom:1px solid var(--border); }
+    .quick-card { background:var(--card); border:1px solid var(--border); border-radius:20px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.3); }
+    .quick-card-header { padding:1.2rem 1.4rem; border-bottom:1px solid var(--border); background:linear-gradient(90deg,var(--gold-dim),transparent 60%); position:relative; }
+    .quick-card-header::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--gold),var(--gold2)); border-radius:0 3px 3px 0; }
+    .quick-card-title { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:var(--text); display:block; margin-bottom:0.2rem; }
+    .quick-card-sub { font-size:0.75rem; color:var(--muted); line-height:1.6; }
+    .quick-body { padding:1.4rem; display:flex; flex-direction:column; gap:1.4rem; }
+
+    /* Steps */
+    .q-step { display:flex; flex-direction:column; gap:0.7rem; transition:opacity 0.3s; }
+    .q-step-header { display:flex; align-items:center; gap:0.7rem; }
+    .q-step-num {
+      width:26px; height:26px; border-radius:50%; flex-shrink:0;
+      background:var(--gold-dim); border:1px solid rgba(212,168,67,0.3);
+      color:var(--gold); font-size:0.72rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .q-step-title { font-size:0.88rem; font-weight:600; color:var(--text); }
+    .q-hint { font-size:0.72rem; color:var(--muted); line-height:1.5; }
+
+    /* Semester selector grid */
+    .q-sem-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:0.4rem; }
+    .q-sem-btn {
+      padding:0.6rem 0.2rem; border-radius:10px; border:1px solid var(--border);
+      background:var(--surface); color:var(--muted);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:0.75rem; font-weight:600;
+      cursor:pointer; transition:all 0.18s; text-align:center;
+    }
+    .q-sem-btn:hover { border-color:var(--border2); color:var(--soft); }
+    .q-sem-btn.selected { border-color:rgba(212,168,67,0.5); background:var(--gold-dim); color:var(--gold); box-shadow:0 0 14px rgba(212,168,67,0.1); }
+
+    /* OAM input row */
+    .q-oam-row { display:flex; align-items:center; gap:0.8rem; }
+    .quick-input {
+      flex:1; background:var(--navy); border:1.5px solid var(--border2); border-radius:9px;
+      padding:0.6rem 0.9rem; color:var(--text); font-size:1rem;
+      font-family:'JetBrains Mono',monospace; outline:none;
+      transition:border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance:textfield;
+    }
+    .quick-input::-webkit-outer-spin-button,
+    .quick-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .quick-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,168,67,0.1); }
+    .quick-input.filled { border-color:rgba(212,168,67,0.4); color:var(--gold2); }
+    .q-oam-grade {
+      font-family:'JetBrains Mono',monospace; font-size:0.8rem; font-weight:600;
+      padding:0.3rem 0.7rem; border-radius:8px; border:1px solid transparent;
+      min-width:60px; text-align:center; transition:all 0.2s; white-space:nowrap;
+    }
+
+    /* Module marks grid */
+    .q-mods-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+    .q-mod-row { display:flex; align-items:center; gap:0.6rem; }
+    .q-mod-label { font-size:0.78rem; font-weight:600; color:var(--soft); min-width:70px; }
+    .q-mod-pill {
+      font-family:'JetBrains Mono',monospace; font-size:0.65rem; font-weight:600;
+      padding:0.18rem 0.5rem; border-radius:6px; border:1px solid;
+      min-width:42px; text-align:center; visibility:hidden; flex-shrink:0;
+    }
+
+    .btn-quick-calc {
+      width:100%; padding:1rem; border-radius:12px; border:none;
+      background:linear-gradient(135deg,#b8892a,#d4a843,#e8c060,#d4a843,#b8892a);
+      background-size:300% 100%; color:#0a0600;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:0.95rem; font-weight:700;
+      letter-spacing:0.04em; cursor:pointer; transition:all 0.3s;
+      box-shadow:0 4px 20px rgba(212,168,67,0.25);
+    }
+    .btn-quick-calc:hover { background-position:100% 0; transform:translateY(-2px); box-shadow:0 8px 28px rgba(212,168,67,0.4); }
+
+    /* Quick result */
+    .quick-result { display:none; background:var(--navy); border:1px solid var(--border2); border-radius:14px; overflow:hidden; animation:resultReveal 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    .quick-result-hero { padding:1.8rem 1.5rem; text-align:center; position:relative; overflow:hidden; border-bottom:1px solid var(--border); }
+    .quick-result-hero::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); width:200px; height:200px; border-radius:50%; background:radial-gradient(ellipse,rgba(212,168,67,0.07) 0%,transparent 65%); pointer-events:none; }
+    .quick-result-dual { display:flex; justify-content:center; align-items:center; gap:2rem; position:relative; z-index:1; }
+    .quick-result-metric { text-align:center; }
+    .quick-result-label { font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.3rem; }
+    .quick-result-num { font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:700; line-height:1; }
+    .quick-result-sub { font-size:0.7rem; color:var(--muted); margin-top:0.2rem; }
+    .quick-result-sub strong { font-weight:700; }
+    .quick-result-divider { font-size:1.5rem; color:rgba(212,168,67,0.2); padding-top:0.5rem; }
+    .quick-result-quote { padding:0.8rem 1.2rem; background:var(--gold-dim); text-align:center; }
+    .quick-result-quote p { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; color:rgba(212,168,67,0.8); }
+
+    /* Summer list in quick predictor */
+    .q-summer-list { display:flex; flex-direction:column; gap:0.6rem; }
+    .q-summer-item {
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--navy); border:1px solid var(--border2);
+      border-radius:11px; padding:0.7rem 1rem; gap:1rem; flex-wrap:wrap;
+    }
+    .q-summer-item-label { font-size:0.82rem; font-weight:600; color:var(--soft); }
+    .q-summer-item-label span { font-size:0.68rem; color:var(--muted); font-weight:400; display:block; margin-top:1px; }
+    .q-summer-opts { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .q-summer-opt {
+      padding:0.35rem 0.8rem; border-radius:8px; border:1px solid var(--border2);
+      background:var(--surface); color:var(--muted);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:0.75rem; font-weight:600;
+      cursor:pointer; transition:all 0.15s; white-space:nowrap;
+    }
+    .q-summer-opt:hover { border-color:rgba(249,115,22,0.4); color:rgba(249,115,22,0.8); }
+    .q-summer-opt.selected { border-color:rgba(249,115,22,0.5); background:rgba(249,115,22,0.1); color:var(--summer); }
+    .q-summer-opt.opt-none.selected { border-color:rgba(249,115,22,0.5); background:rgba(249,115,22,0.1); color:var(--summer); }
+
+    /* ══ FOOTER ══ */
+    footer { background:var(--navy); border-top:1px solid var(--border); text-align:center; padding:3rem 1.5rem; position:relative; overflow:hidden; }
+    footer::before { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,rgba(212,168,67,0.08) 1px,transparent 1px); background-size:28px 28px; opacity:0.4; }
+    .footer-inner { position:relative; z-index:1; }
+    .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--gold); opacity:0.8; margin-bottom:0.5rem; letter-spacing:0.05em; }
+    .footer-quote { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(220,232,245,0.35); margin-bottom:1rem; line-height:1.6; }
+    .footer-meta { font-size:0.68rem; color:var(--muted); letter-spacing:0.05em; line-height:2; }
+    .footer-meta span { color:var(--gold); opacity:0.7; }
+
+    .fade-in   { animation:fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+    .fade-in-2 { animation:fadeUp 0.7s 0.15s cubic-bezier(0.16,1,0.3,1) both; }
+    .fade-in-3 { animation:fadeUp 0.7s 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    @media (max-width: 600px) {
+      .semesters-grid { grid-template-columns: 1fr; }
+      .q-sem-grid { grid-template-columns: repeat(4,1fr); }
+      .q-mods-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction:column; }
+      .hero-stat { border-right:none; border-bottom:1px solid var(--border); }
+      .hero-stat:last-child { border-bottom:none; }
+      h1 { font-size:2.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<div class="theme-toggle">
+  <button class="theme-btn" id="btnDark" onclick="setTheme('dark')">🌙 Dark</button>
+  <button class="theme-btn active" id="btnLight" onclick="setTheme('light')">☀️ Light</button>
+</div>
+
+<div class="bg-art">
+  <div class="bg-arc-tr"></div>
+  <div class="bg-glow-bl"></div>
+  <div class="bg-center"></div>
+  <div class="bg-lines"></div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="ornament fade-in">✦ ✦ ✦</div>
+    <h1 class="fade-in">Your <em>CGPA,</em><br>Calculated Right</h1>
+    <p class="hero-sub fade-in-2">Know where you stand. Own your journey. Reach your potential.</p>
+    <blockquote class="hero-quote fade-in-2">
+      An investment in knowledge pays the best interest.
+      <cite>— Benjamin Franklin</cite>
+    </blockquote>
+    <div class="hero-stats fade-in-3">
+      <div class="hero-stat"><span class="hero-stat-num">8</span><span class="hero-stat-label">Semesters</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">3</span><span class="hero-stat-label">Summer Sems</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">4</span><span class="hero-stat-label">Modules Max</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">4.0</span><span class="hero-stat-label">Max CGPA</span></div>
+    </div>
+    <a class="scroll-cta" href="javascript:void(0)" onclick="document.getElementById('quick-estimate').scrollIntoView({behavior:'smooth'})">
+      Begin Calculating
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </a>
+  </section>
+
+  <!-- QUOTE STRIP -->
+  <div class="quote-strip">
+    <p>"The beautiful thing about learning is that no one can take it away from you."<cite>— B.B. King</cite></p>
+  </div>
+
+  <!-- ══ QUICK PREDICT ══ -->
+  <div class="quick-section" id="quick-estimate">
+    <div class="section-eyebrow">
+      <span class="section-eyebrow-text">⚡ &nbsp; Quick CGPA Predictor</span>
+    </div>
+
+    <div class="quick-card">
+      <div class="quick-card-header">
+        <span class="quick-card-title">Quick Predictor</span>
+        <p class="quick-card-sub">
+          Don't want to enter all your marks? Just tell us what semester you're in,
+          your current overall mark from SIS, and predict what you'll get this semester.
+          We'll do the rest.
+        </p>
+      </div>
+      <div class="quick-body">
+
+        <!-- STEP 1: Which semester -->
+        <div class="q-step">
+          <div class="q-step-header">
+            <span class="q-step-num">1</span>
+            <span class="q-step-title">Which semester are you currently in?</span>
+          </div>
+          <div class="q-sem-grid" id="qSemGrid"></div>
+        </div>
+
+        <!-- STEP 2: Summer semesters (shown dynamically) -->
+        <div class="q-step" id="qStep2" style="opacity:0.4;pointer-events:none">
+          <div class="q-step-header">
+            <span class="q-step-num">2</span>
+            <span class="q-step-title">Did you take any summer semesters?</span>
+          </div>
+          <p class="q-hint" style="margin-bottom:0.8rem">Select how many modules you took each summer. Skip if you didn't take any.</p>
+          <div class="q-summer-list" id="qSummerList"></div>
+        </div>
+
+        <!-- STEP 3: Current OAM -->
+        <div class="q-step" id="qStep3" style="opacity:0.4;pointer-events:none">
+          <div class="q-step-header">
+            <span class="q-step-num">3</span>
+            <span class="q-step-title">What is your current overall mark in SIS?</span>
+          </div>
+          <div class="q-oam-row">
+            <input class="quick-input" id="qx" type="number" min="0" max="100"
+              placeholder="e.g.  83.80"
+              oninput="onQOAMInput(this.value)" />
+            <div class="q-oam-grade" id="qOAMGrade"></div>
+          </div>
+          <p class="q-hint">This is the OAM shown in your SIS student portal.</p>
+        </div>
+
+        <!-- STEP 4: Predicted marks -->
+        <div class="q-step" id="qStep4" style="opacity:0.4;pointer-events:none">
+          <div class="q-step-header">
+            <span class="q-step-num">4</span>
+            <span class="q-step-title">What marks do you expect to get this semester?</span>
+          </div>
+          <p class="q-hint" style="margin-bottom:0.8rem">Enter your predicted mark for each module. Leave blank if you're not sure.</p>
+          <div class="q-mods-grid" id="qModsGrid"></div>
+        </div>
+
+        <button class="btn-quick-calc" id="qCalcBtn" onclick="quickCalculate()">⚡ &nbsp; Predict My CGPA</button>
+
+        <!-- Result -->
+        <div class="quick-result" id="quickResult">
+          <div class="quick-result-hero" id="quickResultHero">
+            <div class="quick-result-dual">
+              <div class="quick-result-metric">
+                <span class="quick-result-label">Projected CGPA</span>
+                <div class="quick-result-num" id="qResultCGPA"></div>
+                <div class="quick-result-sub" id="qResultGrade"></div>
+              </div>
+              <div class="quick-result-divider">◆</div>
+              <div class="quick-result-metric">
+                <span class="quick-result-label">Projected OAM</span>
+                <div class="quick-result-num" id="qResultOAM" style="color:var(--gold2)"></div>
+                <div class="quick-result-sub">Overall Average Mark</div>
+              </div>
+            </div>
+          </div>
+          <div class="quick-result-quote"><p id="qResultQuote"></p></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="calc-section" id="calculator">
+
+    <div class="section-eyebrow">
+      <span class="section-eyebrow-text">✦ &nbsp; Grade Calculator</span>
+    </div>
+
+    <div class="save-notice">
+      <span class="save-dot"></span>
+      <span><strong>Auto-save is on</strong> — your marks are remembered every time you open this page.</span>
+    </div>
+
+    <!-- ALL SEMESTERS GRID -->
+    <div class="semesters-grid" id="semestersGrid"></div>
+
+    <div class="action-row">
+      <button class="btn-calc" id="calcBtn" onclick="calculate()">✦ &nbsp; Calculate My CGPA</button>
+      <button class="btn-reset" onclick="resetAll()">↺ Reset All</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="result-section">
+      <div class="result-card" id="resultCard">
+        <div class="result-hero" id="resultHero">
+          <div class="result-decoration">✦ &nbsp; Your Final Result &nbsp; ✦</div>
+          <div class="result-dual">
+            <div class="result-metric">
+              <span class="result-metric-label">CGPA</span>
+              <div class="result-cgpa" id="resultCGPA"></div>
+              <div class="result-metric-sub" id="resultGradeLine"></div>
+            </div>
+            <div class="result-metric-divider">◆</div>
+            <div class="result-metric">
+              <span class="result-metric-label">OAM</span>
+              <div class="result-oam" id="resultOAM"></div>
+              <div class="result-metric-sub">Overall Average Mark</div>
+            </div>
+          </div>
+          <div class="result-divider"><span class="result-divider-icon">◆</span></div>
+          <div class="result-pills" id="resultStats"></div>
+        </div>
+        <div class="result-quote"><p id="resultQuoteText"></p></div>
+        <div class="result-body">
+          <div class="section-header"><span class="section-label">✦ Semester Breakdown</span><div class="section-line"></div></div>
+          <div class="sem-rows" id="semBreakdown"></div>
+        </div>
+        <div class="scale-section">
+          <div class="section-header"><span class="section-label">✦ MEC Grading Scale Reference</span><div class="section-line"></div></div>
+          <div class="scale-grid" id="scaleGrid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUOTE STRIP 2 -->
+  <div class="quote-strip">
+    <p>"Success is the sum of small efforts, repeated day in and day out."<cite>— Robert Collier</cite></p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">MEC</div>
+      <p class="footer-quote">
+        "Education is not the filling of a pail, but the lighting of a fire."<br>
+        <em>— W.B. Yeats</em>
+      </p>
+      <div class="footer-meta">
+        Built by <span>Yamen Hamed Al Dhanki</span> &nbsp;·&nbsp;
+        This is <strong style="color:var(--gold);opacity:0.9">not</strong> an official MEC tool<br>
+        The official MEC app calculator is inaccurate — this tool uses the correct weighted OAM method
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ── GRADING SCALE ──
+  const SCALE = [
+    { min:91, max:100, grade:"A",  gpa:4.00 },
+    { min:87, max:90,  grade:"A-", gpa:3.75 },
+    { min:84, max:86,  grade:"B+", gpa:3.50 },
+    { min:80, max:83,  grade:"B",  gpa:3.25 },
+    { min:77, max:79,  grade:"B-", gpa:3.00 },
+    { min:74, max:76,  grade:"C+", gpa:2.75 },
+    { min:70, max:73,  grade:"C",  gpa:2.50 },
+    { min:66, max:69,  grade:"C-", gpa:2.25 },
+    { min:60, max:65,  grade:"D+", gpa:2.00 },
+    { min:50, max:59,  grade:"D",  gpa:1.75 },
+    { min:0,  max:49,  grade:"F",  gpa:0.00 },
+  ];
+
+  const GRADE_QUOTES = {
+    "A":  "Exceptional! You are among the very best. Keep soaring. ✦",
+    "A-": "Outstanding performance — you're almost at the top. One more push!",
+    "B+": "Great work! You're well above average and on a strong path.",
+    "B":  "Good job! Solid performance — stay consistent and aim higher.",
+    "B-": "Above average — you have great potential. Keep building on this.",
+    "C+": "Decent result. With more focus, you can definitely reach the next level.",
+    "C":  "You've passed. Set your sights higher next semester — you can do it.",
+    "C-": "Passing, but there's significant room to grow. Stay motivated.",
+    "D+": "You made it, but let's aim much higher. Seek support if needed.",
+    "D":  "Barely passing. Now is the time to reflect and refocus your energy.",
+    "F":  "Don't give up. Failure is the first step towards success. Rise again.",
+  };
+
+  function getGrade(oam) {
+    return [...SCALE].sort((a,b)=>b.min-a.min).find(g=>oam>=g.min) || SCALE[SCALE.length-1];
+  }
+
+  function gradeColor(grade) {
+    if (grade==="A")  return "#d4a843";
+    if (grade==="A-") return "#f0c96a";
+    if (grade==="B+") return "#34d399";
+    if (grade==="B")  return "#6ee7b7";
+    if (grade==="B-") return "#2dd4bf";
+    if (grade==="C+") return "#38bdf8";
+    if (grade==="C")  return "#60a5fa";
+    if (grade==="C-") return "#a78bfa";
+    if (grade.startsWith("D")) return "#fb923c";
+    return "#f87171";
+  }
+
+  // ── STATE ──
+  // marks[s][m] = "" or "85" (string) for regular sems s=0..7, m=0..3
+  // summerEnabled[s] = bool for summer after sem s (s=0..6)
+  // summerMarks[s][m] = "" or "72" for summer s=0..6, m=0..1
+  const SAVE_KEY = "mec_cgpa_v7";
+
+  function defaultState() {
+    return {
+      marks: Array.from({length:8}, () => ["","","",""]),
+      summerEnabled: Array(3).fill(false),
+      summerMarks:   Array.from({length:3}, () => ["",""]),
+    };
+  }
+
+  let S = defaultState();
+
+  function saveState() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e){}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved.marks)         S.marks         = saved.marks;
+      if (saved.summerEnabled) S.summerEnabled  = saved.summerEnabled;
+      if (saved.summerMarks)   S.summerMarks    = saved.summerMarks;
+    } catch(e){}
+  }
+
+  // ── RENDER ──
+  // Groups: [0,1]+summer0, [2,3]+summer1, [4,5]+summer2, [6,7]
+  const GROUPS = [
+    { sems:[0,1], summerIdx:0, label:"Summer 1" },
+    { sems:[2,3], summerIdx:1, label:"Summer 2" },
+    { sems:[4,5], summerIdx:2, label:"Summer 3" },
+    { sems:[6,7], summerIdx:null },
+  ];
+
+  function buildAll() {
+    const grid = document.getElementById("semestersGrid");
+    grid.innerHTML = "";
+
+    GROUPS.forEach(group => {
+      // Two semester cards side by side (handled by CSS grid)
+      group.sems.forEach(s => grid.appendChild(buildRegularCard(s)));
+
+      // Summer row spanning full width
+      if (group.summerIdx !== null) {
+        const si = group.summerIdx;
+
+        // Toggle row
+        const toggleWrap = document.createElement("div");
+        toggleWrap.className = "summer-row-wrap";
+        toggleWrap.innerHTML = `
+          <span class="summer-toggle-label">☀ ${group.label} — after Semester ${group.sems[0]+1} & ${group.sems[1]+1}</span>
+          <div class="summer-toggle-line"></div>
+          <button class="btn-summer-toggle ${S.summerEnabled[si]?'active':''}" id="btn-summer-${si}" onclick="toggleSummerEnabled(${si})">
+            ${S.summerEnabled[si] ? '✕ Remove' : '+ Add Summer'}
+          </button>`;
+        grid.appendChild(toggleWrap);
+
+        // Summer card wrap (full-width via grid-column)
+        const cardWrap = document.createElement("div");
+        cardWrap.id = `summer-card-wrap-${si}`;
+        cardWrap.className = "summer-card-wrap";
+        cardWrap.style.display = S.summerEnabled[si] ? "block" : "none";
+        cardWrap.appendChild(buildSummerCard(si, group.label));
+        grid.appendChild(cardWrap);
+      }
+    });
+
+    buildScaleGrid();
+    updateCalcBtn();
+  }
+
+  function buildRegularCard(s) {
+    const isFinal = s === 7;
+    const modNames = isFinal
+      ? ["Bachelor Project","Module 2","Module 3","Module 4"]
+      : ["Module 1","Module 2","Module 3","Module 4"];
+    const credits  = isFinal ? [30,15,15,15] : [15,15,15,15];
+
+    const card = document.createElement("div");
+    card.className = "sem-card";
+    card.id = `card-r-${s}`;
+
+    card.innerHTML = `
+      <div class="sem-card-header">
+        <div>
+          <span class="sem-title">Semester ${s+1}</span>
+          ${isFinal ? '<span class="sem-title-badge badge-final">Final Year</span>' : ''}
+        </div>
+        <span class="sem-oam-live" id="oam-r-${s}">—</span>
+      </div>
+      <div class="modules-grid" id="mods-r-${s}">
+        ${[0,1,2,3].map(m => `
+          <div class="mod-row">
+            <span class="mod-label">${modNames[m]}<br><span style="font-size:0.6rem;color:var(--muted);font-weight:400">${credits[m]} CR</span></span>
+            <input class="mod-input" type="number" min="0" max="100" placeholder="—"
+              id="inp-r-${s}-${m}"
+              value="${S.marks[s][m]}"
+              oninput="onRegularInput(${s},${m},this.value)"
+            />
+            <div class="mod-grade-pill" id="pill-r-${s}-${m}" style="visibility:hidden">—</div>
+          </div>`).join("")}
+      </div>`;
+
+    // Restore pills on load
+    [0,1,2,3].forEach(m => { if (S.marks[s][m] !== "") refreshPill(`pill-r-${s}-${m}`, S.marks[s][m]); });
+    refreshSemOAM(s, false);
+    return card;
+  }
+
+  function buildSummerCard(s, label) {
+    label = label || `Summer ${s+1}`;
+    const card = document.createElement("div");
+    card.className = "sem-card summer-card";
+    card.id = `card-s-${s}`;
+
+    card.innerHTML = `
+      <div class="sem-card-header">
+        <div>
+          <span class="sem-title">${label}</span>
+          <span class="sem-title-badge badge-summer">☀ After Sem ${s+1}</span>
+        </div>
+        <span class="sem-oam-live" id="oam-s-${s}">—</span>
+      </div>
+      <div class="modules-grid" id="mods-s-${s}">
+        ${[0,1].map(m => `
+          <div class="mod-row">
+            <span class="mod-label">Module ${m+1}<br><span style="font-size:0.6rem;color:var(--muted);font-weight:400">15 CR</span></span>
+            <input class="mod-input" type="number" min="0" max="100" placeholder="—"
+              id="inp-s-${s}-${m}"
+              value="${S.summerMarks[s][m]}"
+              oninput="onSummerInput(${s},${m},this.value)"
+            />
+            <div class="mod-grade-pill" id="pill-s-${s}-${m}" style="visibility:hidden">—</div>
+          </div>`).join("")}
+      </div>`;
+
+    [0,1].forEach(m => { if (S.summerMarks[s][m] !== "") refreshPill(`pill-s-${s}-${m}`, S.summerMarks[s][m]); });
+    refreshSemOAM(s, true);
+    return card;
+  }
+
+  // ── INPUT HANDLERS ──
+  function onRegularInput(s, m, val) {
+    S.marks[s][m] = val;
+    refreshPill(`pill-r-${s}-${m}`, val);
+    refreshSemOAM(s, false);
+    updateCalcBtn(); clearResult(); saveState();
+  }
+
+  function onSummerInput(s, m, val) {
+    S.summerMarks[s][m] = val;
+    refreshPill(`pill-s-${s}-${m}`, val);
+    refreshSemOAM(s, true);
+    updateCalcBtn(); clearResult(); saveState();
+  }
+
+  function refreshPill(pillId, val) {
+    const pill = document.getElementById(pillId);
+    if (!pill) return;
+    const n = parseFloat(val);
+    const hasVal = val !== "" && !isNaN(n) && n >= 0 && n <= 100;
+    if (!hasVal) { pill.style.visibility = "hidden"; return; }
+    const grade = getGrade(n);
+    const color = gradeColor(grade.grade);
+    pill.style.visibility = "visible";
+    pill.textContent = grade.grade;
+    pill.style.color = color;
+    pill.style.borderColor = color + "50";
+    pill.style.background  = color + "15";
+    // Also update input colour
+    const inpId = pillId.replace("pill-","inp-");
+    const inp = document.getElementById(inpId);
+    if (inp) {
+      const isSummer = inpId.startsWith("inp-s-");
+      inp.classList.toggle("filled", !isSummer && hasVal);
+      inp.classList.toggle("summer-filled", isSummer && hasVal);
+    }
+  }
+
+  function refreshSemOAM(s, isSummer) {
+    const oamEl = document.getElementById(isSummer ? `oam-s-${s}` : `oam-r-${s}`);
+    if (!oamEl) return;
+    const marks = isSummer ? S.summerMarks[s] : S.marks[s];
+    const maxM  = isSummer ? 2 : 4;
+    let w = 0, c = 0;
+    for (let m = 0; m < maxM; m++) {
+      const n = parseFloat(marks[m]);
+      if (isNaN(n) || marks[m] === "" || n < 0 || n > 100) continue;
+      const cr = (!isSummer && s === 7 && m === 0) ? 30 : 15;
+      w += n * cr; c += cr;
+    }
+    if (c === 0) { oamEl.textContent = "—"; oamEl.style.color = ""; return; }
+    const oam = w / c;
+    const grade = getGrade(oam);
+    const color = gradeColor(grade.grade);
+    oamEl.textContent = `OAM ${oam.toFixed(1)}`;
+    oamEl.style.color = color;
+  }
+
+  // ── SUMMER TOGGLE ──
+  function toggleSummerEnabled(s) {
+    S.summerEnabled[s] = !S.summerEnabled[s];
+    if (!S.summerEnabled[s]) { S.summerMarks[s] = ["",""]; }
+    saveState();
+
+    const btn  = document.getElementById(`btn-summer-${s}`);
+    const wrap = document.getElementById(`summer-card-wrap-${s}`);
+    btn.textContent = S.summerEnabled[s] ? "✕ Remove" : "+ Add Summer";
+    btn.classList.toggle("active", S.summerEnabled[s]);
+
+    if (S.summerEnabled[s]) {
+      wrap.style.display = "block";
+      wrap.innerHTML = "";
+      const grp = GROUPS.find(g => g.summerIdx === s);
+      wrap.appendChild(buildSummerCard(s, grp ? grp.label : null));
+    } else {
+      wrap.style.display = "none";
+    }
+
+    updateCalcBtn(); clearResult();
+  }
+
+  // ── CALCULATE ──
+  function updateCalcBtn() {
+    const any = S.marks.flat().some(v => v !== "" && !isNaN(parseFloat(v)))
+      || S.summerMarks.flat().some(v => v !== "" && !isNaN(parseFloat(v)));
+    document.getElementById("calcBtn").disabled = !any;
+  }
+
+  function clearResult() {
+    document.getElementById("result-section").style.display = "none";
+  }
+
+  function calculate() {
+    let totalW = 0, totalC = 0, results = [];
+
+    GROUPS.forEach(group => {
+      // Regular semesters in this group
+      group.sems.forEach(s => {
+        let sw = 0, sc = 0, cnt = 0;
+        for (let m = 0; m < 4; m++) {
+          const n = parseFloat(S.marks[s][m]);
+          if (isNaN(n) || S.marks[s][m] === "" || n < 0 || n > 100) continue;
+          const cr = (s === 7 && m === 0) ? 30 : 15;
+          sw += n * cr; sc += cr;
+          totalW += n * cr; totalC += cr; cnt++;
+        }
+        if (sc > 0) {
+          const oam = sw / sc;
+          results.push({ label:`Semester ${s+1}`, oam, ...getGrade(oam), cnt, isSummer:false });
+        }
+      });
+
+      // Summer for this group
+      if (group.summerIdx !== null) {
+        const si = group.summerIdx;
+        if (S.summerEnabled[si]) {
+          let sw2 = 0, sc2 = 0, cnt2 = 0;
+          for (let m = 0; m < 2; m++) {
+            const n = parseFloat(S.summerMarks[si][m]);
+            if (isNaN(n) || S.summerMarks[si][m] === "" || n < 0 || n > 100) continue;
+            sw2 += n * 15; sc2 += 15;
+            totalW += n * 15; totalC += 15; cnt2++;
+          }
+          if (sc2 > 0) {
+            const oam2 = sw2 / sc2;
+            results.push({ label:group.label, oam:oam2, ...getGrade(oam2), cnt:cnt2, isSummer:true });
+          }
+        }
+      }
+    });
+
+    if (totalC === 0) return;
+    const finalOAM = totalW / totalC;
+    showResult(finalOAM, getGrade(finalOAM), results, totalC);
+  }
+
+  function showResult(oam, grade, results, credits) {
+    const color = gradeColor(grade.grade);
+
+    document.getElementById("resultCard").style.borderColor = color + "40";
+    document.getElementById("resultCard").style.boxShadow  = `0 20px 80px rgba(0,0,0,0.5), 0 0 80px ${color}08`;
+    document.getElementById("resultHero").style.background = "var(--card)";
+
+    const cgpaEl = document.getElementById("resultCGPA");
+    cgpaEl.textContent = grade.gpa.toFixed(2);
+    cgpaEl.style.color = color;
+    cgpaEl.style.textShadow = `0 0 60px ${color}50`;
+
+    const oamEl = document.getElementById("resultOAM");
+    oamEl.textContent = oam.toFixed(2);
+    oamEl.style.color = "var(--gold2)";
+    oamEl.style.textShadow = "0 0 40px rgba(212,168,67,0.4)";
+
+    document.getElementById("resultGradeLine").innerHTML = `Grade <strong style="color:${color}">${grade.grade}</strong>`;
+    document.getElementById("resultStats").innerHTML =
+      `<div class="result-pill">Total Credits <strong>${credits}</strong></div>
+       <div class="result-pill">Semesters <strong>${results.length}</strong></div>`;
+
+    document.getElementById("resultQuoteText").textContent = GRADE_QUOTES[grade.grade] || "";
+
+    document.getElementById("semBreakdown").innerHTML = results.map(r => {
+      const c = gradeColor(r.grade);
+      return `<div class="breakdown-row ${r.isSummer?'is-summer':''}">
+        <div class="breakdown-row-left">${r.isSummer?'☀ ':''}${r.label} <span style="font-size:0.65rem;color:var(--muted);margin-left:0.4rem;font-weight:400">${r.cnt} mod${r.cnt!==1?'s':''}</span></div>
+        <div class="breakdown-row-right">
+          <span class="breakdown-oam">OAM ${r.oam.toFixed(1)}</span>
+          <div class="grade-pill" style="color:${c};border-color:${c}40;background:${c}12">${r.grade}</div>
+        </div>
+      </div>`;
+    }).join("");
+
+    document.querySelectorAll(".scale-chip").forEach(chip => {
+      const g = chip.dataset.grade; const match = g === grade.grade; const c = gradeColor(g);
+      chip.style.color = match?c:""; chip.style.borderColor = match?c+"60":"";
+      chip.style.background = match?c+"15":""; chip.style.fontWeight = match?"700":"";
+    });
+
+    const sec = document.getElementById("result-section");
+    sec.style.display = "block";
+    setTimeout(() => sec.scrollIntoView({behavior:"smooth", block:"nearest"}), 50);
+  }
+
+  function buildScaleGrid() {
+    document.getElementById("scaleGrid").innerHTML = SCALE.map(g =>
+      `<div class="scale-chip" data-grade="${g.grade}">${g.grade} · ${g.gpa.toFixed(2)} · ${g.min}–${g.max===100?'100':g.max}</div>`
+    ).join("");
+  }
+
+  function resetAll() {
+    if (!confirm("Reset all marks? This will clear everything.")) return;
+    S = defaultState(); saveState(); buildAll(); clearResult();
+  }
+
+  // ── QUICK PREDICTOR ──
+  // summers: Summer 1 = after S1&S2, Summer 2 = after S3&S4, Summer 3 = after S5&S6
+  // Summer available if student is in S3+ (sum1), S5+ (sum2), S7+ (sum3)
+  const SUMMERS_DEF = [
+    { idx:0, label:"Summer 1", hint:"After Semester 1 & 2", availableFrom:3 },
+    { idx:1, label:"Summer 2", hint:"After Semester 3 & 4", availableFrom:5 },
+    { idx:2, label:"Summer 3", hint:"After Semester 5 & 6", availableFrom:7 },
+  ];
+
+  let qSem      = null;
+  let qSummer   = [0, 0, 0]; // 0=not taken, 1=1 module, 2=2 modules per summer
+  let qMods     = ["","","",""];
+
+  function buildQuickUI() {
+    // Semester buttons
+    document.getElementById("qSemGrid").innerHTML =
+      Array.from({length:8}, (_,i) =>
+        `<button class="q-sem-btn" data-sem="${i+1}" onclick="selectQSem(${i+1})">Sem ${i+1}</button>`
+      ).join("");
+
+    // Module inputs
+    document.getElementById("qModsGrid").innerHTML =
+      ["Module 1","Module 2","Module 3","Module 4"].map((name, i) => `
+        <div class="q-mod-row">
+          <span class="q-mod-label">${name}</span>
+          <input class="quick-input" type="number" min="0" max="100" placeholder="0 – 100"
+            id="qmod-${i}" oninput="onQModInput(${i}, this.value)" />
+          <div class="q-mod-pill" id="qpill-${i}"></div>
+        </div>`).join("");
+  }
+
+  function selectQSem(sem) {
+    qSem = sem;
+    qSummer = [0, 0, 0]; // reset summers on sem change
+    document.querySelectorAll(".q-sem-btn").forEach(b =>
+      b.classList.toggle("selected", parseInt(b.dataset.sem) === sem)
+    );
+
+    // Build summer list for applicable summers
+    const applicable = SUMMERS_DEF.filter(s => sem >= s.availableFrom);
+    const listEl = document.getElementById("qSummerList");
+
+    if (applicable.length === 0) {
+      listEl.innerHTML = `<p class="q-hint" style="color:var(--muted);font-style:italic">No summer semesters available before Semester ${sem}.</p>`;
+    } else {
+      listEl.innerHTML = applicable.map(s => `
+        <div class="q-summer-item">
+          <div class="q-summer-item-label">
+            ☀ ${s.label}
+            <span>${s.hint}</span>
+          </div>
+          <div class="q-summer-opts">
+            <button class="q-summer-opt opt-none selected" data-sum="${s.idx}" data-val="0" onclick="selectSummer(${s.idx},0)">Not taken</button>
+            <button class="q-summer-opt" data-sum="${s.idx}" data-val="1" onclick="selectSummer(${s.idx},1)">1 module</button>
+            <button class="q-summer-opt" data-sum="${s.idx}" data-val="2" onclick="selectSummer(${s.idx},2)">2 modules</button>
+          </div>
+        </div>`).join("");
+    }
+
+    // Unlock step 2 and 3 (summer is always shown, OAM unlocks after)
+    unlockStep("qStep2");
+    unlockStep("qStep3");
+    qClearResult();
+  }
+
+  function selectSummer(idx, val) {
+    qSummer[idx] = val;
+    // Update button states for this summer
+    document.querySelectorAll(`[data-sum="${idx}"]`).forEach(b => {
+      const isMatch = parseInt(b.dataset.val) === val;
+      b.classList.toggle("selected", isMatch);
+      b.classList.toggle("opt-none", parseInt(b.dataset.val) === 0);
+    });
+    qClearResult();
+  }
+
+  function onQOAMInput(val) {
+    const n = parseFloat(val);
+    const hasVal = val !== "" && !isNaN(n) && n >= 0 && n <= 100;
+    document.getElementById("qx").classList.toggle("filled", hasVal);
+    const gradeEl = document.getElementById("qOAMGrade");
+    if (hasVal) {
+      const grade = getGrade(n); const color = gradeColor(grade.grade);
+      gradeEl.textContent = `Current: ${grade.grade}`;
+      gradeEl.style.color = color;
+      gradeEl.style.borderColor = color + "50";
+      gradeEl.style.background  = color + "12";
+      unlockStep("qStep4");
+    } else {
+      gradeEl.textContent = "";
+      gradeEl.style.borderColor = "transparent";
+      gradeEl.style.background = "transparent";
+    }
+    qClearResult();
+  }
+
+  function onQModInput(i, val) {
+    qMods[i] = val;
+    const n = parseFloat(val);
+    const hasVal = val !== "" && !isNaN(n) && n >= 0 && n <= 100;
+    const pill = document.getElementById(`qpill-${i}`);
+    document.getElementById(`qmod-${i}`).classList.toggle("filled", hasVal);
+    if (hasVal) {
+      const grade = getGrade(n); const color = gradeColor(grade.grade);
+      pill.style.visibility = "visible";
+      pill.textContent = grade.grade;
+      pill.style.color = color; pill.style.borderColor = color+"50"; pill.style.background = color+"15";
+    } else { pill.style.visibility = "hidden"; }
+    qClearResult();
+  }
+
+  function unlockStep(id) {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = "1"; el.style.pointerEvents = "auto"; }
+  }
+
+  function qClearResult() {
+    document.getElementById("quickResult").style.display = "none";
+  }
+
+  function quickCalculate() {
+    if (!qSem) { alert("Please select which semester you are currently in."); return; }
+    const xVal = parseFloat(document.getElementById("qx").value);
+    if (isNaN(xVal) || xVal < 0 || xVal > 100) { alert("Please enter your current OAM from SIS."); return; }
+    const modMarks = qMods.map(v => parseFloat(v)).filter(n => !isNaN(n) && n >= 0 && n <= 100);
+    if (modMarks.length === 0) { alert("Please enter at least one predicted mark for this semester."); return; }
+
+    // y = semesters completed before current one
+    // Each full summer (2 modules) adds 0.5, each partial (1 module) adds 0.25
+    let y = qSem - 1; // base: whole semesters completed
+    qSummer.forEach(mods => {
+      if (mods === 2) y += 0.5;
+      else if (mods === 1) y += 0.25;
+    });
+
+    const avgSem = modMarks.reduce((a,b) => a+b, 0) / modMarks.length;
+
+    // Hidden equation
+    const projectedOAM = ((xVal * y) + avgSem) / (y + 1);
+    const clampedOAM   = Math.min(100, Math.max(0, projectedOAM));
+    const grade        = getGrade(clampedOAM);
+    const color        = gradeColor(grade.grade);
+
+    const cgpaEl = document.getElementById("qResultCGPA");
+    cgpaEl.textContent = grade.gpa.toFixed(2);
+    cgpaEl.style.color = color;
+    cgpaEl.style.textShadow = `0 0 40px ${color}50`;
+    document.getElementById("qResultOAM").textContent = clampedOAM.toFixed(2);
+    document.getElementById("qResultGrade").innerHTML = `Grade <strong style="color:${color}">${grade.grade}</strong>`;
+    document.getElementById("qResultQuote").textContent = GRADE_QUOTES[grade.grade] || "";
+
+    const resultEl = document.getElementById("quickResult");
+    resultEl.style.display = "block";
+    resultEl.style.borderColor = color + "40";
+    document.getElementById("quickResultHero").style.background = "var(--navy)";
+    setTimeout(() => resultEl.scrollIntoView({behavior:"smooth", block:"nearest"}), 50);
+  }
+
+  // ── THEME ──
+  function setTheme(mode) {
+    if (mode === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    document.getElementById('btnDark').classList.toggle('active', mode === 'dark');
+    document.getElementById('btnLight').classList.toggle('active', mode === 'light');
+    try { localStorage.setItem('mec_theme', mode); } catch(e){}
+  }
+
+  // Load saved theme — default is light
+  try {
+    const saved = localStorage.getItem('mec_theme');
+    if (saved === 'dark') {
+      setTheme('dark');
+    } else {
+      setTheme('light');
+    }
+  } catch(e){ setTheme('light'); }
+
+  buildQuickUI();
+
+  // ── INIT ──
+  loadState();
+  buildAll();
+</script>
+</body>
+</html>
