@@ -42,7 +42,7 @@ Always refer to your official SIS portal for your official academic records.
 | F     | 0.00   | Below 50  |
 
 ## Built With
-- HTML, CSS, JavaScript — no frameworks, no backend, no dependencies
+-Built with vanilla HTML, CSS, and JavaScript, powered by GSAP, Three.js, and Google Fonts via CDN. No frameworks, no backend, no build tools.
 - Single .html file — works by just opening it in any browser
 
 ## Author
