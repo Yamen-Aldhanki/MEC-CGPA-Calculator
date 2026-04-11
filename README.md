@@ -7,6 +7,7 @@ Live Website:
 http://mecgradehub.wuaze.com
 
  What It Does:
+ 
 - Calculates your CGPA and OAM accurately using the correct weighted method
 - Supports all 8 semesters with up to 4 modules each (15 credits per module)
 - Semester 8 Bachelor Project is automatically set to 30 credits
@@ -17,10 +18,12 @@ http://mecgradehub.wuaze.com
   - Quick Predictor — enter your current OAM from SIS and predict your result
 
 Who Is This For:
+
 Students at Middle East College (MEC) who want a simple and convenient way
 to track their CGPA and predict their academic performance.
 
 Disclaimer:
+
 This is NOT an official MEC tool.
 It is an independent student-made project and is not affiliated with
 or endorsed by Middle East College in any way.
