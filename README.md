@@ -42,6 +42,7 @@ Grading Scale Used (Official MEC Scheme):
 | F     | 0.00   | Below 50  |
 
  Built With:
+ 
 • Built with vanilla HTML, CSS, and JavaScript, powered by GSAP, Three.js, and Google Fonts via CDN.
 
 • No frameworks, no backend, no build tools.
