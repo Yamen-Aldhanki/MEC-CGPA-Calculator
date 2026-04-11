@@ -4,7 +4,7 @@ A web-based CGPA and OAM calculator built by a Middle East College (MEC) student
 to help fellow students easily track and predict their academic progress.
 
 ## Live Website
-https://meccalculator.xo.je
+http://mecgradehub.wuaze.com
 
 ## What It Does
 - Calculates your CGPA and OAM accurately using the correct weighted method
