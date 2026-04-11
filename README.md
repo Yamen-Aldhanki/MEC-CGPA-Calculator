@@ -46,7 +46,7 @@ Grading Scale Used (Official MEC Scheme):
 
 • No frameworks, no backend, no build tools.
 
-• Single .html file — works by just opening it in any browser
+• Single .html file, works by just opening it in any browser.
 
 Author:
 Yamen Hamed Al Dhanki
